@@ -72,3 +72,33 @@ if __name__ == "__main__":
     test_feature_engineering()
 
 
+# test_model_dev.py
+from src.appliance_energy_predictor.components.model_dev import ModelDevelopment
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+import tensorflow as tf
+
+def test_model_development():
+    print("--- Testing ModelDevelopment Component ---")
+    
+    model_developer = ModelDevelopment()
+    
+    lr_model = model_developer.get_linear_regression_model()
+    print(f"\nSuccessfully created Linear Regression model: {isinstance(lr_model, LinearRegression)}")
+    print(lr_model)
+    
+    rf_model = model_developer.get_random_forest_model()
+    print(f"\nSuccessfully created Random Forest model: {isinstance(rf_model, RandomForestRegressor)}")
+    print(rf_model)
+    
+    dummy_input_shape = (6, 33) 
+    lstm_model = model_developer.get_lstm_model(input_shape=dummy_input_shape)
+    print(f"\nSuccessfully created LSTM model: {isinstance(lstm_model, tf.keras.Model)}")
+    
+    first_layer_is_lstm = isinstance(lstm_model.layers[0], tf.keras.layers.LSTM)
+    print(f"First layer is an LSTM layer: {first_layer_is_lstm}")
+
+
+if __name__ == "__main__":
+    test_model_development()
+
