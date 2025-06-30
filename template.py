@@ -4,9 +4,6 @@ import logging
 
 logging.basicConfig(level=logging.INFO, format='[%(asctime)s]: %(message)s:')
 
-project_name = "appliance_energy_predictor"
-
-
 list_of_files = [
     ".github/workflows/.gitkeep",  # For CI/CD workflows
     "data/raw/.gitkeep",           # Per assessment doc 
@@ -23,7 +20,6 @@ list_of_files = [
     "reports/.gitkeep",            # For storing reports and figures 
     "main.py",                     # A main script to run the training pipeline
     "requirements.txt",            # For project dependencies [cite: 73]
-    "setup.py",                    # To make the project installable
     "README.md"                    # Project overview and setup instructions [cite: 73]
 ]
 
