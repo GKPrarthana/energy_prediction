@@ -2,7 +2,7 @@ import numpy as np
 import os
 import joblib
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 from tensorflow.keras.callbacks import EarlyStopping
 
 # Import components from the project structure
@@ -21,13 +21,7 @@ def create_sequences(X, y, time_steps=1):
 
 def run_pipeline():
     """
-    Executes the full machine learning pipeline:
-    1. Data Ingestion & Preprocessing
-    2. Feature Engineering
-    3. Data Splitting & Scaling
-    4. Baseline Model Training & Evaluation
-    5. Deep Learning Model Training & Evaluation
-    6. Model Saving
+    Executes the full machine learning pipeline.
     """
     # 1. Data Ingestion & Preprocessing
     data_preprocessor = DataPreprocessing()
@@ -57,61 +51,15 @@ def run_pipeline():
     # Instantiate model developer
     model_developer = ModelDevelopment()
 
-    # 4. Baseline Models
-    print("\n--- Training & Evaluating Baseline Models ---")
-    
-    # Linear Regression
-    lr_model = model_developer.get_linear_regression_model()
-    lr_model.fit(X_train_scaled, y_train)
-    lr_preds_log = lr_model.predict(X_test_scaled)
-    
-    y_test_original = np.expm1(y_test)
-    lr_preds_original = np.expm1(lr_preds_log)
-    
-    lr_mae = mean_absolute_error(y_test_original, lr_preds_original)
-    lr_rmse = np.sqrt(mean_squared_error(y_test_original, lr_preds_original))
-    print(f"Linear Regression -> MAE: {lr_mae:.2f} Wh, RMSE: {lr_rmse:.2f} Wh")
-
-    # Random Forest
+    # 4. Train Best Model (Random Forest)
+    print("\n--- Training Best Model (Random Forest) ---")
     rf_model = model_developer.get_random_forest_model()
     rf_model.fit(X_train_scaled, y_train)
-    rf_preds_log = rf_model.predict(X_test_scaled)
-    rf_preds_original = np.expm1(rf_preds_log)
-
-    rf_mae = mean_absolute_error(y_test_original, rf_preds_original)
-    rf_rmse = np.sqrt(mean_squared_error(y_test_original, rf_preds_original))
-    print(f"Random Forest -> MAE: {rf_mae:.2f} Wh, RMSE: {rf_rmse:.2f} Wh")
-
-    # 5. Deep Learning Model
-    print("\n--- Training & Evaluating Deep Learning Model (LSTM) ---")
-    TIME_STEPS = 6
-    X_train_seq, y_train_seq = create_sequences(X_train_scaled, y_train.values, TIME_STEPS)
-    X_test_seq, y_test_seq = create_sequences(X_test_scaled, y_test.values, TIME_STEPS)
-
-    lstm_model = model_developer.get_lstm_model(input_shape=(X_train_seq.shape[1], X_train_seq.shape[2]))
     
-    early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
-    
-    lstm_model.fit(
-        X_train_seq, y_train_seq,
-        epochs=50,
-        batch_size=32,
-        validation_split=0.2,
-        callbacks=[early_stopping],
-        verbose=1
-    )
-    
-    lstm_preds_log = lstm_model.predict(X_test_seq)
-    y_test_seq_original = np.expm1(y_test_seq)
-    lstm_preds_original = np.expm1(lstm_preds_log)
-
-    lstm_mae = mean_absolute_error(y_test_seq_original, lstm_preds_original)
-    lstm_rmse = np.sqrt(mean_squared_error(y_test_seq_original, lstm_preds_original))
-    print(f"LSTM Model -> MAE: {lstm_mae:.2f} Wh, RMSE: {lstm_rmse:.2f} Wh")
-
-    # 6. Model Saving
-    print("\n--- Saving Models ---")
+    # 5. Model Saving
+    print("\n--- Saving Model and Scaler ---")
     os.makedirs('models', exist_ok=True)
     joblib.dump(rf_model, 'models/random_forest_model.pkl')
-    lstm_model.save('models/lstm_model.h5')
-    print("Models saved successfully to the 'models' directory.")
+    joblib.dump(scaler, 'models/scaler.pkl') # <--- THIS LINE SAVES THE SCALER
+    print("Model and scaler saved successfully to the 'models' directory.")
+
